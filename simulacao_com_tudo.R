@@ -19,7 +19,7 @@ simulate_path <- function(Tt, mu, sigma, P, F0 = 100, S0 = 1) {
   list(F = F, S = S)
 }
 
-# PV dos prÛximos H fluxos (sem perpetuidade) -> est·vel
+# PV dos pr√≥ximos H fluxos (sem perpetuidade) -> est√°vel
 value_finite_from_T <- function(F_T, g_hat, r_hat, H = 5) {
   F_proj <- F_T * cumprod(rep(1 + g_hat, H))
   disc   <- cumprod(rep(1 + r_hat, H))
@@ -55,7 +55,7 @@ run_experiment <- function(
     S_obs <- S[1:T_obs]
     F_T   <- F_obs[T_obs]
     
-    # TRUE value at T_obs = PV dos prÛximos H fluxos realizados (sem perpetuidade)
+    # TRUE value at T_obs = PV dos pr√≥ximos H fluxos realizados (sem perpetuidade)
     V_true_T <- 0
     disc <- 1
     for (h in 1:H) {
@@ -64,7 +64,7 @@ run_experiment <- function(
     }
     Vtrue_store[s] <- V_true_T
     
-    # DCF: mÈdia de crescimento (˙ltimos 5 OU toda amostra observada)
+    # DCF: m√©dia de crescimento (√∫ltimos 5 OU toda amostra observada)
     g_all <- diff(F_obs) / F_obs[-T_obs]
     if (use_last5) {
       g_last5 <- diff(F_obs[(T_obs - 5):T_obs]) / F_obs[(T_obs - 5):(T_obs - 1)]
@@ -74,7 +74,7 @@ run_experiment <- function(
     }
     V_dcf <- value_finite_from_T(F_T, g_hat_dcf, r_hat, H)
     
-    # RS (toy): mÈdia dos mu dos estados observados (proxy simples)
+    # RS (toy): m√©dia dos mu dos estados observados (proxy simples)
     g_hat_rs <- mean(mu[S_obs])
     V_rs <- value_finite_from_T(F_T, g_hat_rs, r_hat, H)
     
@@ -85,7 +85,7 @@ run_experiment <- function(
     ape_rs[s]  <- abs(bias_rs[s])  / abs(V_true_T)
   }
   
-  # MÈtricas
+  # M√©tricas
   bias_dcf_mean <- mean(bias_dcf)
   bias_rs_mean  <- mean(bias_rs)
   
@@ -105,10 +105,10 @@ run_experiment <- function(
   rmse_red <- 100 * (rmse_dcf - rmse_rs) / rmse_dcf
   mape_red <- 100 * (mape_dcf - mape_rs) / mape_dcf
   
-  # Teste pareado na perda quadr·tica
+  # Teste pareado na perda quadr√°tica
   tt <- t.test(bias_dcf^2, bias_rs^2, paired = TRUE, alternative = "greater")
   
-  # Bootstrap IC das reduÁıes (%)
+  # Bootstrap IC das redu√ß√µes (%)
   set.seed(123)
   n <- n_sim
   rmse_red_boot <- numeric(B_boot)
@@ -140,7 +140,7 @@ run_experiment <- function(
   list(
     scenario = scenario_name,
     use_last5 = use_last5,
-    # mÈtricas
+    # m√©tricas
     bias_dcf = bias_dcf_mean, bias_rs = bias_rs_mean,
     mae_dcf = mae_dcf, mae_rs = mae_rs,
     rmse_dcf = rmse_dcf, rmse_rs = rmse_rs,
@@ -151,7 +151,7 @@ run_experiment <- function(
     mae_ci_l  = as.numeric(mae_ci[1]),  mae_ci_u  = as.numeric(mae_ci[2]),
     mape_ci_l = as.numeric(mape_ci[1]), mape_ci_u = as.numeric(mape_ci[2]),
     Vtrue_mean = Vtrue_mean,
-    # vetores para gr·ficos
+    # vetores para gr√°ficos
     bias_dcf_vec = bias_dcf, bias_rs_vec = bias_rs,
     ape_dcf_vec = ape_dcf, ape_rs_vec = ape_rs,
     # teste
@@ -197,7 +197,7 @@ P_switchy <- matrix(c(
 ), 3,3, byrow=TRUE)
 
 ## ---------- Run experiments (Table 1: 3 scenarios, last5) ----------
-res1 <- run_experiment("Alta persistÍncia", P = P_persistent, sigma = 0.05, use_last5 = TRUE)
+res1 <- run_experiment("Alta persist√™ncia", P = P_persistent, sigma = 0.05, use_last5 = TRUE)
 res2 <- run_experiment("Alta volatilidade", P = P_base,       sigma = 0.10, use_last5 = TRUE)
 res3 <- run_experiment("Alta instabilidade (switching)", P = P_switchy, sigma = 0.05, use_last5 = TRUE)
 
@@ -206,7 +206,7 @@ table1_df <- rbind(to_row(res1), to_row(res2), to_row(res3))
 ## ---------- Table 2: last5 vs all (choose one scenario, e.g., high volatility) ----------
 res2_all <- run_experiment("Alta volatilidade", P = P_base, sigma = 0.10, use_last5 = FALSE)
 table2_df <- rbind(to_row(res2), to_row(res2_all))
-table2_df$scenario <- paste0(table2_df$scenario, ifelse(table2_df$use_last5, " (˙ltimos 5)", " (amostra toda)"))
+table2_df$scenario <- paste0(table2_df$scenario, ifelse(table2_df$use_last5, " (√∫ltimos 5)", " (amostra toda)"))
 
 ## ---------- EXPORT results_df to CSV ----------
 results_df <- rbind(table1_df, table2_df)
@@ -223,8 +223,8 @@ cat("Saved: results_df.csv, table1_scenarios.csv, table2_last5_vs_all.csv\n")
 pdf("Figure_APE_Histogram1.pdf", width = 11, height = 7)
 par(mfrow=c(3,2), mar=c(4,4,2,1))
 
-hist(res1$ape_dcf_vec, breaks=60, main="APE - DCF (Alta persistÍncia)", xlab="APE")
-hist(res1$ape_rs_vec,  breaks=60, main="APE - RS  (Alta persistÍncia)", xlab="APE")
+hist(res1$ape_dcf_vec, breaks=60, main="APE - DCF (Alta persist√™ncia)", xlab="APE")
+hist(res1$ape_rs_vec,  breaks=60, main="APE - RS  (Alta persist√™ncia)", xlab="APE")
 
 hist(res2$ape_dcf_vec, breaks=60, main="APE - DCF (Alta volatilidade)", xlab="APE")
 hist(res2$ape_rs_vec,  breaks=60, main="APE - RS  (Alta volatilidade)", xlab="APE")
@@ -240,7 +240,7 @@ pdf("Figure_APE_Boxplots11.pdf", width = 11, height = 4)
 par(mfrow=c(1,3), mar=c(4,4,2,1))
 
 boxplot(res1$ape_dcf_vec, res1$ape_rs_vec, names=c("DCF","RS"),
-        main="Alta persistÍncia", ylab="APE")
+        main="Alta persist√™ncia", ylab="APE")
 boxplot(res2$ape_dcf_vec, res2$ape_rs_vec, names=c("DCF","RS"),
         main="Alta volatilidade", ylab="APE")
 boxplot(res3$ape_dcf_vec, res3$ape_rs_vec, names=c("DCF","RS"),
@@ -255,7 +255,7 @@ cat("Saved: Figure_APE_Histograms1.pdf, Figure_APE_Boxplots11.pdf\n")
 fmt <- function(x, d=4) sprintf(paste0("%.", d, "f"), x)
 fmt2 <- function(x) sprintf("%.2f", x)
 
-make_table1_latex <- function(df, caption="Tabela 1 -- Resultados Monte Carlo por cen·rio", label="tab:mc_scenarios") {
+make_table1_latex <- function(df, caption="Tabela 1 -- Resultados Monte Carlo por cen√°rio", label="tab:mc_scenarios") {
   # Keep only last5 rows expected
   df <- df[df$use_last5 == TRUE, ]
   df <- df[, c("scenario","Vtrue_mean","rmse_dcf","rmse_rs","rmse_red","mape_dcf","mape_rs","mape_red","p10_dcf","p10_rs",
@@ -269,7 +269,7 @@ make_table1_latex <- function(df, caption="Tabela 1 -- Resultados Monte Carlo po
   out <- c(out, sprintf("\\label{%s}", label))
   out <- c(out, "\\begin{tabular}{lrrrrrrrr}")
   out <- c(out, "\\toprule")
-  out <- c(out, "Cen·rio & $\\overline{|V^{true}|}$ & RMSE(DCF) & RMSE(RS) & $\\Delta$RMSE(\\%) & MAPE(DCF) & MAPE(RS) & $\\Delta$MAPE(\\%) & P(APE$>$10\\%) \\\\")
+  out <- c(out, "Cen√°rio & $\\overline{|V^{true}|}$ & RMSE(DCF) & RMSE(RS) & $\\Delta$RMSE(\\%) & MAPE(DCF) & MAPE(RS) & $\\Delta$MAPE(\\%) & P(APE$>$10\\%) \\\\")
   out <- c(out, "\\midrule")
   
   for (i in 1:nrow(df)) {
@@ -300,7 +300,7 @@ make_table1_latex <- function(df, caption="Tabela 1 -- Resultados Monte Carlo po
   paste(out, collapse="\n")
 }
 
-make_table2_latex <- function(df, caption="Tabela 2 -- Sensibilidade: janela curta vs amostra toda (cen·rio: alta volatilidade)", label="tab:mc_last5_vs_all") {
+make_table2_latex <- function(df, caption="Tabela 2 -- Sensibilidade: janela curta vs amostra toda (cen√°rio: alta volatilidade)", label="tab:mc_last5_vs_all") {
   df <- df[, c("scenario","rmse_dcf","rmse_rs","rmse_red","mape_dcf","mape_rs","mape_red","p10_dcf","p10_rs")]
   out <- c()
   out <- c(out, "\\begin{table}[htbp]")
@@ -358,8 +358,8 @@ cat(table2_tex)
 
 
 
-## ---------- Figura 3: CDF do APE com 3 painÈis (1 PDF) ----------
-pdf("figure3_cdf_3panels.pdf", width = 10, height = 4)
+## ---------- Figura 2: CDF do APE com 3 pain√©is (1 PDF) ----------
+pdf("figure2_cdf_3panels.pdf", width = 10, height = 4)
 
 par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))  # 1 linha, 3 colunas
 
@@ -382,11 +382,11 @@ plot_cdf_panel <- function(res, main_suffix) {
   legend("bottomright", legend = c("DCF", "RS"), lty = c(1, 2), bty = "n", cex = 0.9)
 }
 
-plot_cdf_panel(res1, "Alta persistÍncia")
+plot_cdf_panel(res1, "Alta persist√™ncia")
 plot_cdf_panel(res2, "Alta vol.")
 plot_cdf_panel(res3, "Alta instab.")
 
 par(mfrow = c(1, 1))
 dev.off()
 
-cat("Figura 3 (3 painÈis) salva em: figure3_cdf_3panels.pdf\n")
+cat("Figura 2 (3 pain√©is) salva em: figure2_cdf_3panels.pdf\n")
